@@ -20,6 +20,8 @@ def filtrarDados(inicio, final):
     dados_filtrados = dados[(dados["Date"] >= inicio) & (dados["Date"] <= final)]
 
     return dados_filtrados
+
+
 def lucro_maximo_minimo(inicio, final):
     dados_filtrados = filtrarDados(inicio, final)
 
@@ -64,14 +66,15 @@ def voltar_um_dia_util(data_datetime, ticker):
 
     menor_data = min(dias_uteis)
 
-    while data_datetime.date() not in dias_uteis:
+    while True:
         data_datetime -= timedelta(days=1)
 
         if data_datetime.date() < menor_data:
             print(f"{cores.vermelho("*Não há dados anteriores a essa data.\n")}")
             return False
+        if data_datetime.date() in dias_uteis:
+            return data_datetime
 
-    return data_datetime
 
 def fechamento_do_dia(inicio, final):
     dados = pd.read_csv("dados_acoes.csv")
@@ -84,10 +87,13 @@ def fechamento_do_dia(inicio, final):
     inicio_dia_anterior = voltar_um_dia_util(inicio, "ITSA4.SA")
 
     # Se não tiver dia anterior no csv, usa o inicio fornecido, se não considera um dia menos
-    if inicio_dia_anterior != False:
-        dados_filtrados = dados[(dados["Date"] >= inicio_dia_anterior) & (dados["Date"] <= final)]
-    else:
+    if not inicio_dia_anterior:
         dados_filtrados = dados[(dados["Date"] >= inicio) & (dados["Date"] <= final)]
+    else:
+        dados_filtrados = dados[(dados["Date"] >= inicio_dia_anterior) & (dados["Date"] <= final)]
+
+    dados_fechamento_atual = []
+    dados_fechamento_anterior = []
 
     # Filtrar as datas (poderia ser qualquer ticker, pois todas tem a mesma data) | Começar a tabela do index 0
     dados_acao = dados_filtrados[dados_filtrados["Ticker"] == "ITSA4.SA"]
@@ -99,12 +105,17 @@ def fechamento_do_dia(inicio, final):
         dia_Anterior = dados_acao.iloc[index]["Date"]
         dia_Atual = dados_acao.iloc[index + 1]["Date"]
 
-        print(f"{dia_Anterior} - Fechamento do dia anterior: {dados_diaAnterior}")
-        print(f"{dia_Atual} - Fechamento do dia atual: {dados_diaAtual}")
+        dados_fechamento_anterior.append(float(dados_diaAnterior))
+        dados_fechamento_atual.append(float(dados_diaAtual))
+
+        print(f"{dia_Anterior} - Fechamento do dia anterior: {dados_diaAnterior:.2f}")
+        print(f"{dia_Atual} - Fechamento do dia atual: {dados_diaAtual:.2f}")
         print()
 
+    return [dados_fechamento_anterior, dados_fechamento_atual]
 
 
+fechamento = fechamento_do_dia("02/01/2024","09/04/2025")
 
-fechamento_do_dia("01/01/2024", "07/04/2025")
-
+print(f"Anterior: {fechamento[0]}")
+print(f"Atual {fechamento[1]}")
