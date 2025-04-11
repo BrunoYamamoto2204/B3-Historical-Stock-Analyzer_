@@ -7,7 +7,7 @@ import auxiliaryFunctions
 import cores
 import listaTicker
 
-def filtrarAcoes(inicio, final):
+def filtrarAcoes(inicio, final, ordemDesejada):
     pd.set_option('display.width', None) # Sem abreviação de colunas (Teste visualização de tabela)
 
     # Abrir o CSV | Desconsiderar fuso horário (algumas ações não tem)
@@ -45,11 +45,12 @@ def filtrarAcoes(inicio, final):
             print(f"{cores.ciano("\nMaior Lucro:")} {cores.verde(f"R${lucro_maximo_acao:.2f}%")}")
             print(f"{cores.ciano("Menor Lucro:")} {cores.vermelho(f"R${lucro_minimo_acao:.2f}%")}")
 
-            auxiliaryFunctions.calcularGain(-2, inicio, final, ticker,dados)
+            auxiliaryFunctions.calcularGain(ordemDesejada, inicio, final, ticker,dados)
         else:
             print("\033[31m[-]\033[m Sem dados disponíveis neste período")
 
+    print()
     tempo_final = time()
     print(f"{cores.amarelo_bold("Tempo de espera")}: {tempo_final - tempo_inicio:.2f}s")
 
-filtrarAcoes("2025-01-01","2025-04-05")
+# filtrarAcoes("2025-01-03","2025-04-05", -2)

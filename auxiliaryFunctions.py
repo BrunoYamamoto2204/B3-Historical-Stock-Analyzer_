@@ -5,12 +5,44 @@ import cores
 import listaTicker
 
 
-def converterData(data):
-    data_obj = datetime.strptime(data, "%d/%m/%Y")
-    nova_string = data_obj.strftime("%Y-%m-%d")
+def reposta():
+    while True:
+        try:
+            r = int(input("Escolha: "))
+
+            if 1 <= r <= 3:
+                return r
+            else:
+                print(cores.vermelho_bold("Reposta inválida! Digite 1 ou 2.\n"))
+        except:
+            print(cores.vermelho_bold("Reposta inválida! Digite 1 ou 2.\n"))
+
+def numInteiro(texto):
+    while True:
+        try:
+            r = float(input(f"{texto}: "))
+            return r
+
+        except:
+            print(cores.vermelho_bold("Reposta inválida! Apenas números.\n"))
+
+def converterData(texto): #string %d/%m/%Y
+    while True:
+        try:
+            data = input(f"{texto}{cores.amarelo(f"(dd/mm/YYYY)")}: ")
+            data_obj = datetime.strptime(data, "%d/%m/%Y")
+            nova_string = data_obj.strftime("%Y-%m-%d")
+
+            return nova_string
+        except:
+            print(cores.vermelho("Data inválida! Digite novamente!\n"))
+
+
+
+def converter_data_tradicional(data): #datetime %Y-%m-%d
+    nova_string = data.strftime("%d/%m/%Y")
 
     return nova_string
-
 
 def filtrarDados(inicio, final, dados):  #Tipo:datetime (y-m-d)
     dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
