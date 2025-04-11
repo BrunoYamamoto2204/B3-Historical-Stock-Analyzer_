@@ -1,5 +1,5 @@
 import datetime
-
+from time import time
 import pandas as pd
 from datetime import datetime
 
@@ -20,9 +20,9 @@ def filtrarAcoes(inicio, final):
     # Filtra de todos as ações carregadas do CSV, qual está dentro do período
     dados_filtrados = dados[(dados["Date"] >= inicio_datetime) & (dados["Date"] <= final_datetime)]
 
-    lucro_maximo = auxiliaryFunctions.lucro_maximo_minimo(inicio, final)[0]
-    lucro_minimo = auxiliaryFunctions.lucro_maximo_minimo(inicio, final)[1]
-
+    lucro_maximo = auxiliaryFunctions.lucro_maximo_minimo(inicio, final, dados)[0]
+    lucro_minimo = auxiliaryFunctions.lucro_maximo_minimo(inicio, final, dados)[1]
+    tempo_inicio = time()
     for index,ticker in enumerate(listaTicker.TickerList()): #Passa pelos tickers
 
         dados_ticker = dados_filtrados[dados_filtrados["Ticker"] == ticker]
@@ -44,7 +44,12 @@ def filtrarAcoes(inicio, final):
             print(f"Menor valor: {cores.vermelho_bold(f"R${menor_valor:.2f}")}")
             print(f"{cores.ciano("\nMaior Lucro:")} {cores.verde(f"R${lucro_maximo_acao:.2f}%")}")
             print(f"{cores.ciano("Menor Lucro:")} {cores.vermelho(f"R${lucro_minimo_acao:.2f}%")}")
+
+            auxiliaryFunctions.calcularGain(-2, inicio, final, ticker,dados)
         else:
             print("\033[31m[-]\033[m Sem dados disponíveis neste período")
+
+    tempo_final = time()
+    print(f"{cores.amarelo_bold("Tempo de espera")}: {tempo_final - tempo_inicio:.2f}s")
 
 filtrarAcoes("2025-01-01","2025-04-05")

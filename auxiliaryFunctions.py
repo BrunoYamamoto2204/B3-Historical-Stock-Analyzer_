@@ -12,8 +12,7 @@ def converterData(data):
     return nova_string
 
 
-def filtrarDados(inicio, final):  #Tipo:datetime (y-m-d)
-    dados = pd.read_csv("dados_acoes.csv")
+def filtrarDados(inicio, final, dados):  #Tipo:datetime (y-m-d)
     dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
 
     dados_filtrados = dados[(dados["Date"] >= inicio) & (dados["Date"] <= final)]
@@ -21,8 +20,8 @@ def filtrarDados(inicio, final):  #Tipo:datetime (y-m-d)
     return dados_filtrados
 
 
-def lucro_maximo_minimo(inicio, final):  # y-m-d
-    dados_filtrados = filtrarDados(inicio, final)
+def lucro_maximo_minimo(inicio, final, dados):  # y-m-d
+    dados_filtrados = filtrarDados(inicio, final, dados)
 
     lucro_acoes = {}
     maior_lucro_acao = {}
@@ -56,8 +55,7 @@ def lucro_maximo_minimo(inicio, final):  # y-m-d
     return [maior_lucro_acao, menor_lucro_acao]
 
 
-def voltar_um_dia_util(data_datetime, ticker):
-    dados = pd.read_csv("dados_acoes.csv")
+def voltar_um_dia_util(data_datetime, ticker, dados):
     dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
 
     dados_acao = dados[dados["Ticker"] == ticker]
@@ -75,15 +73,14 @@ def voltar_um_dia_util(data_datetime, ticker):
             return data_datetime
 
 
-def fechamento_do_dia(inicio, final, ticker):
-    dados = pd.read_csv("dados_acoes.csv")
+def fechamento_do_dia(inicio, final, ticker, dados): # string "%Y-%m-%d"
     dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
 
     inicio = datetime.strptime(inicio, "%Y-%m-%d")
     final = datetime.strptime(final, "%Y-%m-%d")
 
     # Volta no dia anterior da bolsa (sem FDS e feriados)
-    inicio_dia_anterior = voltar_um_dia_util(inicio, "ITSA4.SA")
+    inicio_dia_anterior = voltar_um_dia_util(inicio, "ITSA4.SA", dados)
 
     # Se não tiver dia anterior no csv, usa o inicio fornecido, se não considera um dia menos
     if not inicio_dia_anterior:
@@ -120,23 +117,23 @@ def fechamento_do_dia(inicio, final, ticker):
 # print(f"Anterior: {fechamento[0]}")
 # print(f"Atual {fechamento[1]}")
 
-def calcularGain(ordemDesejada, inicio, final, acao):
+def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d)
     # Converter para datetime
     inicio_datetime = datetime.strptime(inicio, "%Y-%m-%d")
     final_datetime = datetime.strptime(final, "%Y-%m-%d")
 
     # Filtrar por data e ticker
-    dados_filtrados = filtrarDados(inicio_datetime, final_datetime)
+    dados_filtrados = filtrarDados(inicio_datetime, final_datetime, dados)
     dados_acao = dados_filtrados[dados_filtrados["Ticker"] == acao]
 
     # Fechamento do dia atual e anterior
-    fechamento = fechamento_do_dia(inicio, final, acao)
+    fechamento = fechamento_do_dia(inicio, final, acao, dados)
     fechamento_anterior = fechamento[0]
     fechamento_atual = fechamento[1]
 
     # Variáveis p/ calculos de estatísticos de gain
     qntd_gain = 0  # Comprou mais baixo vendeu mais alto [+]
-    qtnd_loss = 0  # Comprou mais alto vendeu mais baixo [-]
+    qntd_loss = 0  # Comprou mais alto vendeu mais baixo [-]
     qtnd_total = 0  # Total, compraram por gainDesejado ou pela abertura
 
     registro_trades = []  # Verificar maior e menor gain
@@ -144,12 +141,12 @@ def calcularGain(ordemDesejada, inicio, final, acao):
 
     # Percorre todos os dias do período
     for index in range(len(fechamento_atual)):
-        print(f"Data: {dados_acao.iloc[index]["Date"]}")
-        print(f"Fechamento ontem: {fechamento_anterior[index]:.2f}")
-        print(f"Fechamento do dia: {fechamento_atual[index]:.2f}")
-        print(f"Abertura de hoje: {dados_acao.iloc[index]["Open"]:.2f}")
-        print(f"Máxima: {dados_acao.iloc[index]["High"]:.2f}")
-        print(f"Minima: {dados_acao.iloc[index]["Low"]:.2f}")
+        # print(f"Data: {dados_acao.iloc[index]["Date"]}")
+        # print(f"Fechamento ontem: {fechamento_anterior[index]:.2f}")
+        # print(f"Fechamento do dia: {fechamento_atual[index]:.2f}")
+        # print(f"Abertura de hoje: {dados_acao.iloc[index]["Open"]:.2f}")
+        # print(f"Máxima: {dados_acao.iloc[index]["High"]:.2f}")
+        # print(f"Minima: {dados_acao.iloc[index]["Low"]:.2f}")
 
         var_fechamento = (fechamento_atual[index] / fechamento_anterior[index] - 1) * 100
         var_abertura = (dados_acao.iloc[index]["Open"] / fechamento_anterior[index] - 1) * 100
@@ -166,7 +163,7 @@ def calcularGain(ordemDesejada, inicio, final, acao):
                 gain_acumulado += var_fechamento - var_abertura
 
             else:  #Vendeu com fechamento menor do que a compra abertura [-]
-                qtnd_loss += 1
+                qntd_loss += 1
 
         # Compra pela ordem
         elif var_minima < ordemDesejada:  #Se ordem estiver maior que a mínima, compra pela ordem
@@ -178,22 +175,26 @@ def calcularGain(ordemDesejada, inicio, final, acao):
                 gain_acumulado += var_fechamento - ordemDesejada
 
             else:  # Vendeu com fechamento menor do que a compra na ordem [-]
-                qtnd_loss += 1
+                qntd_loss += 1
 
-        print(f"\nVariação fechamento: {var_fechamento:.2f}%")
-        print(f"Variação abertura: {var_abertura:.2f}%")
-        print(f"Variação Max: {var_maxima:.2f}%")
-        print(f"Variação Min: {var_minima:.2f}%")
+        # print(f"\nVariação fechamento: {var_fechamento:.2f}%")
+        # print(f"Variação abertura: {var_abertura:.2f}%")
+        # print(f"Variação Max: {var_maxima:.2f}%")
+        # print(f"Variação Min: {var_minima:.2f}%")
+        # print("-" * 40)
 
-        print()
-        print(f"Total trades: {qtnd_total}")
-        print(f"Gain trades: {qntd_gain}")
-        print(f"Loss trades: {qtnd_loss}")
-        print("-" * 40)
-        print()
+    # Caso não tenha sido realizado trade
+    if qtnd_total == 0:
+        print(cores.amarelo(f"Nenhum trade para o ticker {acao} foi realizado no período de {inicio} até {final}.\n"))
+        return
+
+    # Caso não tenha gain em nenhum trade
+    if qntd_gain == 0:
+        print(cores.amarelo(f"Nenhum Gain trade para o ticker {acao} realizado no período de {inicio} até {final}.\n"))
+        return
 
     # Calculo dos resultados
-    loss_porcentagem = round((qtnd_loss / qtnd_total) * 100, 2)
+    loss_porcentagem = round((qntd_loss / qtnd_total) * 100, 2)
     gain_porcentagem = round((qntd_gain / qtnd_total) * 100, 2)
 
     min_gain = round(min(registro_trades), 2)
@@ -202,7 +203,10 @@ def calcularGain(ordemDesejada, inicio, final, acao):
     ganho_medio = round((gain_acumulado / qntd_gain), 2)  # gain_acumulado / qntd_gain
     gain_acumulado = round(gain_acumulado, 2)
 
-    print(cores.amarelo("Resultados:\n"))
+    print(cores.ciano(f"\n-- ||Trades|| --"))
+    print(f"Total trades: {cores.azul_bold(f"{qtnd_total}")}")
+    print(f"Gain trades: {cores.verde(f"{qntd_gain}")}")
+    print(f"Loss trades: {cores.vermelho(f"{qntd_loss}")}\n")
 
     print(cores.ciano(f"-- ||Gain-Loss|| --"))
     print(f"Loss porcentagem: {cores.vermelho(f"{loss_porcentagem}%")}")
@@ -213,8 +217,8 @@ def calcularGain(ordemDesejada, inicio, final, acao):
     print(f"Max Gain: {cores.verde(f"{max_gain}%")}\n")
 
     print(cores.ciano(f"-- ||Média|| --"))
-    print(f"Gain acumulado: {cores.azul_bold(f"{gain_acumulado}%")}\n")
+    print(f"Gain acumulado: {cores.azul_bold(f"{gain_acumulado}%")}")
     print(f"Ganho médio: {cores.azul_bold(f"{ganho_medio}%")}\n")
 
 
-calcularGain(-2.1, "2024-03-07", "2025-04-02", "KLBN11.SA")
+# calcularGain(-2, "2024-01-03", "2025-04-04", "ITSA4.SA")
