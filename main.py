@@ -14,10 +14,10 @@ dados = pd.read_csv("dados_acoes.csv")
 dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
 dados_filtrados = dados[dados["Ticker"] == "ITSA4.SA"]
 
-data_min = af.converter_data_tradicional(min(dados_filtrados["Date"]))
-data_max = af.converter_data_tradicional(max(dados_filtrados["Date"]))
-
 while True:
+    data_min = af.converter_data_tradicional(min(dados_filtrados["Date"]))
+    data_max = af.converter_data_tradicional(max(dados_filtrados["Date"]))
+
     print()
     print(cores.amarelo("-") * 20, cores.amarelo("Menu"), cores.amarelo("-") * 20)
 
@@ -40,9 +40,10 @@ while True:
 
         inicio = af.converterData("Início")
         final = af.converterData("Final")
-        ordem = af.numInteiro("Ordem de compra(%)")
+        ordem = af.numValido("Ordem de compra(%)")
+        gain_esperado = af.numValido("Gaind desejado(%)")
 
-        gains_acao = manageData.filtrarAcoes(inicio, final, ordem, 70)
+        gains_acao = manageData.filtrarAcoes(inicio, final, ordem, gain_esperado)
 
         print(cores.ciano("\nAções filtradas:"))
         gains_ordem = sorted(gains_acao, key=lambda d: list(d.values())[0], reverse=True)
@@ -51,13 +52,13 @@ while True:
                 print(f"{cores.amarelo(f"{nome}")} - {cores.azul_bold(f"{valor}")}%")
 
         while True:
-            print(cores.amarelo("\n|| APERTAR ") + cores.amarelo_bold("ENTER ") + cores.amarelo("PARA SAIR||"))
+            print("-" * 40)
+            print(cores.amarelo("\n|| APERTAR ") + cores.azul_bold("ENTER ") + cores.amarelo("PARA SAIR||"))
             conferir_acao = input(("Verficar ação (Nome.SA): "))
 
             if conferir_acao == "":
                 break
             else:
-                print("-"*40)
                 auxiliaryFunctions.calcularGain(ordem, inicio, final, conferir_acao, dados)
 
                 print()

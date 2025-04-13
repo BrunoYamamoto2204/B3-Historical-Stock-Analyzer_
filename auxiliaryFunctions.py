@@ -17,10 +17,10 @@ def reposta():
         except:
             print(cores.vermelho_bold("Reposta inválida! Digite 1 ou 2.\n"))
 
-def numInteiro(texto):
+def numValido(texto):
     while True:
         try:
-            r = float(input(f"{texto}: "))
+            r = float(input(f"{texto}: ").replace(",","."))
             return r
 
         except:
