@@ -42,7 +42,26 @@ while True:
         final = af.converterData("Final")
         ordem = af.numInteiro("Ordem de compra(%)")
 
-        manageData.filtrarAcoes(inicio, final, ordem)
+        gains_acao = manageData.filtrarAcoes(inicio, final, ordem, 70)
+
+        print(cores.ciano("\nAções filtradas:"))
+        gains_ordem = sorted(gains_acao, key=lambda d: list(d.values())[0], reverse=True)
+        for ticker in gains_ordem:
+            for nome, valor in ticker.items():
+                print(f"{cores.amarelo(f"{nome}")} - {cores.azul_bold(f"{valor}")}%")
+
+        while True:
+            print(cores.amarelo("\n|| APERTAR ") + cores.amarelo_bold("ENTER ") + cores.amarelo("PARA SAIR||"))
+            conferir_acao = input(("Verficar ação (Nome.SA): "))
+
+            if conferir_acao == "":
+                break
+            else:
+                print("-"*40)
+                auxiliaryFunctions.calcularGain(ordem, inicio, final, conferir_acao, dados)
+
+                print()
+                print(cores.amarelo("-") * 20, cores.amarelo("Procurar ações"), cores.amarelo("-") * 20)
 
     if resposta == 3:
         print()

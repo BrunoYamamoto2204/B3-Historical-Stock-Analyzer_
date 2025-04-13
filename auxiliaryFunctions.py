@@ -252,5 +252,6 @@ def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d
     print(f"Gain acumulado: {cores.azul_bold(f"{gain_acumulado}%")}")
     print(f"Ganho médio: {cores.azul_bold(f"{ganho_medio}%")}\n")
 
+    return gain_porcentagem
 
 # calcularGain(-2, "2024-01-03", "2025-04-04", "ITSA4.SA")
