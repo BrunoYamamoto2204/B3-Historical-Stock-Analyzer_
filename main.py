@@ -41,7 +41,7 @@ while True:
         inicio = af.converterData("Início")
         final = af.converterData("Final")
         ordem = af.numValido("Ordem de compra(%)")
-        gain_esperado = af.numValido("Gaind desejado(%)")
+        gain_esperado = af.numValido("Gain desejado(%)")
 
         gains_acao = manageData.filtrarAcoes(inicio, final, ordem, gain_esperado)
 

@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
+import auxiliaryFunctions
+from time import time
 
-n = (2.343342423)
-
-
+print(time())
 

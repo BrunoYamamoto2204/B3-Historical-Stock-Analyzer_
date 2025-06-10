@@ -99,7 +99,7 @@ def voltar_um_dia_util(data_datetime, ticker, dados):
         data_datetime -= timedelta(days=1)
 
         if data_datetime.date() < menor_data:
-            print(f"{cores.vermelho("*Não há dados anteriores a essa data.\n")}")
+            print(f"{cores.vermelho("*Não há dados anteriores a essa data. Utilizando data inicio\n")}")
             return False
         if data_datetime.date() in dias_uteis:
             return data_datetime
@@ -190,11 +190,11 @@ def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d
             qtnd_total += 1
             registro_trades.append(var_fechamento - var_abertura)
 
-            if var_fechamento >= var_abertura:  #Vendeu com fechamento maior do que a compra na abertura [+]
+            if var_fechamento > var_abertura:  #Vendeu com fechamento maior do que a compra na abertura [+]
                 qntd_gain += 1
                 gain_acumulado += var_fechamento - var_abertura
 
-            else:  #Vendeu com fechamento menor do que a compra abertura [-]
+            else:  #Vendeu com fechamento menor do que a compra na abertura [-]
                 qntd_loss += 1
 
         # Compra pela ordem
@@ -202,7 +202,7 @@ def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d
             qtnd_total += 1
             registro_trades.append(var_fechamento - ordemDesejada)
 
-            if var_fechamento >= ordemDesejada:  # Vendeu com fechamento maior do que a compra na ordem [+]
+            if var_fechamento > ordemDesejada:  # Vendeu com fechamento maior do que a compra na ordem [+]
                 qntd_gain += 1
                 gain_acumulado += var_fechamento - ordemDesejada
 
@@ -220,11 +220,6 @@ def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d
         print(cores.amarelo(f"Nenhum trade para o ticker {acao} foi realizado no período de {inicio} até {final}.\n"))
         return
 
-    # Caso não tenha gain em nenhum trade
-    if qntd_gain == 0:
-        print(cores.amarelo(f"Nenhum Gain trade para o ticker {acao} realizado no período de {inicio} até {final}.\n"))
-        return
-
     # Calculo dos resultados
     loss_porcentagem = round((qntd_loss / qtnd_total) * 100, 2)
     gain_porcentagem = round((qntd_gain / qtnd_total) * 100, 2)
@@ -232,7 +227,12 @@ def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d
     min_gain = round(min(registro_trades), 2)
     max_gain = round(max(registro_trades), 2)
 
-    ganho_medio = round((gain_acumulado / qntd_gain), 2)  # gain_acumulado / qntd_gain
+    # Validação de trades apenas com loss
+    if qntd_gain > 0:
+        ganho_medio = round((gain_acumulado / qntd_gain), 2)
+    else:
+        ganho_medio = 0
+
     gain_acumulado = round(gain_acumulado, 2)
 
     print(cores.ciano(f"\n-- ||Trades|| --"))
