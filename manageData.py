@@ -68,4 +68,4 @@ def filtrarAcoes(inicio, final, ordemDesejada, gain_desejado):
 
     return lista_gain
 
-# filtrarAcoes("2025-01-03","2025-04-05", -2)
+
