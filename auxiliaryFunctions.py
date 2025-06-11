@@ -37,6 +37,27 @@ def converterData(texto): #string %d/%m/%Y
         except:
             print(cores.vermelho("Data inválida! Digite novamente!\n"))
 
+def converter_data_createCSV_dia_anterior(): #string %d/%m/%Y
+    while True:
+        try:
+            data = input(f"Início{cores.amarelo(f"(dd/mm/YYYY)")}: ")
+            data_obj = datetime.strptime(data, "%d/%m/%Y") - timedelta(days=1)
+            nova_string = data_obj.strftime("%Y-%m-%d")
+
+            return nova_string
+        except:
+            print(cores.vermelho("Data inválida! Digite novamente!\n"))
+
+def converter_data_createCSV_dia_seguinte(): #string %d/%m/%Y
+    while True:
+        try:
+            data = input(f"Final{cores.amarelo(f"(dd/mm/YYYY)")}: ")
+            data_obj = datetime.strptime(data, "%d/%m/%Y") + timedelta(days=1)
+            nova_string = data_obj.strftime("%Y-%m-%d")
+
+            return nova_string
+        except:
+            print(cores.vermelho("Data inválida! Digite novamente!\n"))
 
 
 def converter_data_tradicional(data): #datetime %Y-%m-%d
@@ -172,7 +193,8 @@ def calcularGain(ordemDesejada, inicio, final, acao, dados): #Tipo:string (y-m-d
     gain_acumulado = 0  # somar os gains
 
     # Percorre todos os dias do período
-    for index in range(len(fechamento_atual)):
+    min_len = min(len(fechamento_atual), len(fechamento_anterior), len(dados_acao))
+    for index in range(min_len):
         # print(f"Data: {dados_acao.iloc[index]["Date"]}")
         # print(f"Fechamento ontem: {fechamento_anterior[index]:.2f}")
         # print(f"Fechamento do dia: {fechamento_atual[index]:.2f}")

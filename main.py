@@ -3,6 +3,7 @@ import cores
 import createCSV
 import manageData
 # import createCSV
+from datetime import timedelta
 import auxiliaryFunctions as af
 import pandas as pd
 
@@ -14,9 +15,10 @@ dados = pd.read_csv("dados_acoes.csv")
 dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
 dados_filtrados = dados[dados["Ticker"] == "ITSA4.SA"]
 
+
 while True:
-    data_min = af.converter_data_tradicional(min(dados_filtrados["Date"]))
-    data_max = af.converter_data_tradicional(max(dados_filtrados["Date"]))
+    data_min = af.converter_data_tradicional(min(dados_filtrados["Date"]) + timedelta(days=1)) # Evitar erro de não existir dia anterior
+    data_max = af.converter_data_tradicional(max(dados_filtrados["Date"]) + timedelta(days=1)) # Aparece 1 dia depois, end do history não conta o último
 
     print()
     print(cores.amarelo("-") * 20, cores.amarelo("Menu"), cores.amarelo("-") * 20)
@@ -31,7 +33,15 @@ while True:
     if resposta == 1:
         print()
         print(cores.amarelo("-")*20, cores.amarelo("Carregar novas datas"), cores.amarelo("-")*20)
-        createCSV.criarCSV()
+        try:
+            createCSV.criarCSV()
+        except:
+            print(f"{cores.vermelho("Erro para carregar período, tente outra data!")}")
+
+        # Recarrega as datas
+        dados = pd.read_csv("dados_acoes.csv")
+        dados["Date"] = pd.to_datetime(dados["Date"]).dt.tz_localize(None)
+        dados_filtrados = dados[dados["Ticker"] == "ITSA4.SA"]
 
     if resposta == 2:
         print()

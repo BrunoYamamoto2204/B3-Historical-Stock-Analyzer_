@@ -26,6 +26,7 @@ def filtrarAcoes(inicio, final, ordemDesejada, gain_desejado):
     lucro_maximo = auxiliaryFunctions.lucro_maximo_minimo(inicio, final, dados)[0]
     lucro_minimo = auxiliaryFunctions.lucro_maximo_minimo(inicio, final, dados)[1]
     tempo_inicio = time()
+
     for index,ticker in enumerate(listaTicker.TickerList()): #Passa pelos tickers
 
         dados_ticker = dados_filtrados[dados_filtrados["Ticker"] == ticker]
